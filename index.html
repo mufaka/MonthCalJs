@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="applicationTitle" content="Calendar" />
+    <meta name="windowSize" content="475 525" />
+    <meta name="windowBorderRadius" content="10" />
+    <meta name="previewSize" content="300 250" />
+    <meta name="windowOpacity" content="225" />    
+    <title>Month Calendar</title>
+    <style>
+        :root {
+            --day-border-radius: 3px;
+            --day-cell-height: 34px;
+            --day-cell-padding: 8px;
+            --calendar-gap: 2px;
+            --shadow-color: #2C333A;
+            --body-back-color: #191D28;
+            --nav-header-back-color: #283047;
+            --nav-header-color: #BFB3A8;
+            --month-header-back-color: #283047;
+            --month-header-color: #BFB3A8;
+            --weekday-header-back-color: #191D28;
+            --weekday-header-color: #525E76;
+            --day-header-color: #BFB3A8;
+            --currentday-header-color: #BFB3A8;
+            --currentdate-back-color: #072B73;
+            --currentdate-color: #3F3102;
+            --currentmonth-back-color: #283047;
+            --currentmonth-color: #FFFFFF;
+            --month-back-color: #4B556C;
+            --month-color: #3F3102;
+        }
+
+        body {
+            background-color: var(--body-back-color);
+            font-size: 14px;
+        }
+
+        .calendar-wrapper {
+            display: flex;
+            justify-content: flex-start;
+            margin-left: auto;
+            margin-right: 0;
+        }
+
+        .month {
+            display: grid;
+            width: 450px;
+            grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr ;
+            column-gap: var(--calendar-gap);
+            row-gap: var(--calendar-gap);
+        }
+
+        .currentDate:hover, .currentMonthDay:hover, .monthDay:hover
+        {
+            background-color: #091E42;
+        }
+
+        .weekDayHeader {
+            border-radius: var(--day-border-radius);
+            height: 20px;
+            padding: var(--day-cell-padding);
+            background-color: var(--weekday-header-back-color);
+            color: var(--weekday-header-color);
+            text-align: center;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+
+        .dayHeader {
+            display: flex;
+            justify-content: flex-end;
+            padding-right: 4px;
+            margin-left: auto;
+            margin-right: 0;
+            color: var(--day-header-color);
+            text-transform: uppercase;
+            font-size: 10px;
+        }
+
+        .currentDayHeader {
+            display: flex;
+            justify-content: flex-end;
+            padding-right: 4px;
+            margin-left: auto;
+            margin-right: 0;
+            color: var(--currentday-header-color);
+            text-transform: uppercase;
+            font-size: 10px;
+        }
+
+        .currentDate {
+            border-radius: var(--day-border-radius);
+            height: var(--day-cell-height);
+            padding: var(--day-cell-padding);
+            background-color: var(--currentdate-back-color);
+            color: var(--currentdate-color);
+        }
+
+        .currentMonthDay {
+            border-radius: var(--day-border-radius);
+            height: var(--day-cell-height);
+            padding: var(--day-cell-padding);
+            background-color: var(--currentmonth-back-color);
+            color: var(--currentmonth-color);
+        }
+
+        .monthDay {
+            border-radius: var(--day-border-radius);
+            height: var(--day-cell-height);
+            padding: var(--day-cell-padding);
+            background-color: var(--month-back-color);
+            color: var(--month-color);
+        }
+
+        .prevNav {
+            border-radius: var(--day-border-radius);
+            height: 20px;
+            padding: var(--day-cell-padding);
+            background-color: var(--nav-header-back-color);
+            color: var(--nav-header-color);
+            text-align: center;
+        }
+
+        .monthNav {
+            border-radius: var(--day-border-radius);
+            height: 20px;
+            padding: var(--day-cell-padding);
+            background-color: var(--month-header-back-color);
+            color: var(--month-header-color);
+            text-align: center;
+            grid-column: 2 / 7;
+            text-transform: uppercase;
+        }
+
+        .nextNav {
+            border-radius: var(--day-border-radius);
+            height: 20px;
+            padding: var(--day-cell-padding);
+            background-color: var(--nav-header-back-color);
+            color: var(--nav-header-color);
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="calendar-wrapper">
+        <div id="calendar" class="month"></div>
+    </div>
+</body>
+<script type="text/javascript">
+    var calendarElementId = 'calendar';
+    var today = new Date();
+    var displayDate = new Date();
+    const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const dayAbbrs = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const monthAbbrs = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    String.prototype.format = function () {
+        var formatted = this;
+        for (var arg in arguments) {
+            formatted = formatted.split('{' + arg + '}').join(arguments[arg]);
+        }
+        return formatted;
+    };    
+
+    window.onload = function() {
+        initCalendar();
+    }
+
+    function nextMonth() {
+        displayDate.setMonth(displayDate.getMonth() + 1, 1);
+        initCalendar();
+    }
+
+    function previousMonth() {
+        displayDate.setMonth(displayDate.getMonth() - 1, 1);
+        initCalendar();
+    }
+
+    function createDayDiv(calendarDate) {
+        let dayDiv = document.createElement('div');
+        let className = displayDate.getMonth() == calendarDate.getMonth() ? 'currentMonthDay' : 'monthDay';
+        let dayHeaderClassName = 'dayHeader';
+
+        if (today.getMonth() == calendarDate.getMonth() 
+            && today.getDate() == calendarDate.getDate()) {
+            className = 'currentDate';
+            dayHeaderClassName = 'currentDayHeader'
+        }
+
+        dayDiv.className = className;
+        dayDiv.innerHTML = '<div class="{0}">{1} {2}</div>'.format(dayHeaderClassName, monthAbbrs[calendarDate.getMonth()], calendarDate.getDate());
+        
+        return dayDiv;
+    }
+
+    function addDays(date, days) {
+        let clonedDate = new Date(date);
+        return new Date(clonedDate.setDate(clonedDate.getDate() + days));
+    }
+
+    function initCalendar() {
+        let calendarElement = document.getElementById(calendarElementId);
+        calendarElement.innerHTML = '';
+        let firstOfMonth = new Date(displayDate.getFullYear(), displayDate.getMonth(), 1);
+        let firstDayOfWeek = firstOfMonth.getDay(); // 0 - 6
+        let firstCalendarDay = addDays(firstOfMonth, -firstDayOfWeek);
+
+        let prevDiv = document.createElement('div');
+        prevDiv.className = 'prevNav';
+        prevDiv.innerHTML = 'PREV';
+        prevDiv.onclick = previousMonth;
+        calendarElement.insertAdjacentElement('beforeend', prevDiv);
+
+        let monthDiv = document.createElement('div');
+        monthDiv.className = 'monthNav';
+        monthDiv.innerHTML = '{0} {1}'.format(monthNames[displayDate.getMonth()], displayDate.getFullYear());
+        calendarElement.insertAdjacentElement('beforeend', monthDiv);
+
+        let nextDiv = document.createElement('div');
+        nextDiv.className = 'nextNav';
+        nextDiv.innerHTML = 'NEXT';
+        nextDiv.onclick = nextMonth;
+        calendarElement.insertAdjacentElement('beforeend', nextDiv);
+
+        for (let headerIdx = 0; headerIdx < 7; headerIdx++) {
+            let weekDayHeaderDiv = document.createElement('div');
+            weekDayHeaderDiv.className = 'weekDayHeader';
+            weekDayHeaderDiv.innerHTML = dayAbbrs[headerIdx];
+            calendarElement.insertAdjacentElement('beforeend', weekDayHeaderDiv);
+        }
+
+        for (let day = 0; day < 42; day++) {
+            let calendarDate = addDays(firstCalendarDay, day);
+
+            if (calendarDate.getMonth() > displayDate.getMonth() 
+                && calendarDate.getFullYear() == displayDate.getFullYear()
+                && day % 7 == 0) {
+                break;
+            }
+            let dayDiv = createDayDiv(calendarDate);
+            calendarElement.insertAdjacentElement('beforeend', dayDiv);
+        }
+    }
+</script>
+</html>
